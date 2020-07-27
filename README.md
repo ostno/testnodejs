@@ -1,10 +1,18 @@
 # testNodeJS
 
-Usage:
+    |----------------------------------- TopCrypto -------------------------------------|
+    |                                                                                   |
+    |------- real time cryptocurrencies status (data from coingecko.com) ---------------|
+    |                                                                                   |
+    |-----------------------------------------------------------------------------------|
 
-"yarn run start <coins> [...options]"
+Usage : yarn run start btc,xrp,eth,eos,bch,usdt,ltc,trx,xlm,ada --refresh 10 --currency EUR
 
-for instance
 
-"yarn run start btc,xrp,eth,eos,bch,usdt,ltc,trx,xlm,ada" or "yarn run start btc,eth,xrp"m
+Options, use columnIDs : rank, abbr, name, price, change1h, change24h, change7d, marketCap, volume24h
 
+--currency EUR  #USD by default
+
+--help
+
+--refresh 10 #refresh every 10s
