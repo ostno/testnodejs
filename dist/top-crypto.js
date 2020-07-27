@@ -57,41 +57,21 @@ var TopCrypto = /** @class */ (function () {
     }
     TopCrypto.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         this.displayService.showHeader();
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 4, , 5]);
                         return [4 /*yield*/, this.getListOfCurrencies()];
-                    case 2:
+                    case 1:
                         _a.sent();
                         this.setOptions();
                         return [4 /*yield*/, this.run()];
-                    case 3:
+                    case 2:
                         _a.sent();
-                        return [3 /*break*/, 5];
-                    case 4:
-                        e_1 = _a.sent();
-                        this.displayService.showHelp();
-                        return [3 /*break*/, 5];
-                    case 5: return [2 /*return*/];
+                        return [2 /*return*/];
                 }
             });
         });
-    };
-    TopCrypto.prototype.getCryptoIdFromSymbol = function (abbr) {
-        var id = '';
-        for (var i = 0; i < this.marketService.coinList.length; i++) {
-            var elem = this.marketService.coinList[i];
-            if (elem.symbol === abbr) {
-                id = elem.id;
-                break;
-            }
-        }
-        return id;
     };
     TopCrypto.prototype.getListOfCurrencies = function () {
         return this.marketService.getCoinList();
@@ -130,16 +110,16 @@ var TopCrypto = /** @class */ (function () {
             }
         });
     };
-    TopCrypto.prototype.print = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                this.formatTableService.create(this.marketData);
-                this.displayService.clear();
-                this.displayService.showHeader();
-                console.log(this.formatTableService.get().toString());
-                return [2 /*return*/];
-            });
-        });
+    TopCrypto.prototype.getCryptoIdFromSymbol = function (abbr) {
+        var id = '';
+        for (var i = 0; i < this.marketService.coinList.length; i++) {
+            var elem = this.marketService.coinList[i];
+            if (elem.symbol === abbr) {
+                id = elem.id;
+                break;
+            }
+        }
+        return id;
     };
     TopCrypto.prototype.run = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -180,6 +160,17 @@ var TopCrypto = /** @class */ (function () {
                         _a.marketData = _b.sent();
                         return [2 /*return*/];
                 }
+            });
+        });
+    };
+    TopCrypto.prototype.print = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                this.formatTableService.create(this.marketData);
+                this.displayService.clear();
+                this.displayService.showHeader();
+                console.log(this.formatTableService.get().toString());
+                return [2 /*return*/];
             });
         });
     };

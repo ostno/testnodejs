@@ -29,13 +29,9 @@ export class TopCrypto {
 
     async init() {
         this.displayService.showHeader();
-        try {
-            await this.getListOfCurrencies();
-            this.setOptions();
-            await this.run();
-        } catch (e) {
-            this.displayService.showHelp();
-        }
+        await this.getListOfCurrencies();
+        this.setOptions();
+        await this.run();
     }
 
     getListOfCurrencies() {
