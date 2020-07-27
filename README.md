@@ -1,5 +1,9 @@
 # testNodeJS
 
+$ git clone https://github.com/ostno/testnodejs
+$ cd testnodejs
+$ yarn run start
+
     |----------------------------------- TopCrypto -------------------------------------|
     |                                                                                   |
     |------- real time cryptocurrencies status (data from coingecko.com) ---------------|
