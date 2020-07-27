@@ -1,8 +1,11 @@
 # testNodeJS
 
 $ git clone https://github.com/ostno/testnodejs
+
 $ cd testnodejs
+
 $ yarn run start
+
 
     |----------------------------------- TopCrypto -------------------------------------|
     |                                                                                   |
