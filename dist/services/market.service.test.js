@@ -36,46 +36,47 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// The http requests are not mocked here, as we contact a third-party API it is good to check the data
 var market_service_1 = require("./market.service");
+var network_service_mock_1 = require("../mocks/services/network.service.mock");
+var market_data_mock_1 = require("../mocks/market-data-mock");
 describe('MarketService', function () {
-    var api;
+    var service;
     beforeEach(function () {
-        api = new market_service_1.MarketService();
+        service = new market_service_1.MarketService();
+        service.networkService = new network_service_mock_1.NetworkServiceMock();
     });
-    describe('getMarket', function () {
-        test('should return an array of currencies data given an array of currencies from coinGecko', function () { return __awaiter(void 0, void 0, void 0, function () {
-            var options, answer, expected;
+    describe('Verify url', function () {
+        test('coinGeckoURL : https://api.coingecko.com/api/v3', function () {
+            expect(service.coinGeckoURL).toEqual('https://api.coingecko.com/api/v3/');
+        });
+        test('alternativeURL : https://api.alternative.me/v2/', function () {
+            expect(service.alternativeURL).toEqual('https://api.alternative.me/v2/');
+        });
+    });
+    describe('getCoinGeckoMarket', function () {
+        test('should send proper url to network service', function () { return __awaiter(void 0, void 0, void 0, function () {
+            var spy, options, url;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        spy = jest.spyOn(service.networkService, 'get')
+                            .mockImplementation(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+                            return [2 /*return*/, { data: [market_data_mock_1.marketDataMock] }];
+                        }); }); });
                         options = {
-                            currency: 'usd',
-                            abbrs: ['bitcoin'],
-                            ids: ['01coin'],
-                            refresh: false,
-                            refreshInterval: 0,
+                            currency: 'EUR',
+                            currencies: ['btc'],
+                            refresh: 10,
+                            help: false,
+                            alternative: false,
+                            filter: '',
+                            order: 'rank'
                         };
-                        return [4 /*yield*/, api.getMarket(options)];
+                        return [4 /*yield*/, service.getCoinGeckoMarket(options)];
                     case 1:
-                        answer = _a.sent();
-                        return [4 /*yield*/, expect(answer.length).toBe(1)];
-                    case 2:
                         _a.sent();
-                        expected = {
-                            rank: expect.any(Number),
-                            abbr: expect.any(String),
-                            name: expect.any(String),
-                            price: expect.any(Number),
-                            change1h: expect.any(Number),
-                            change24h: expect.any(Number),
-                            change7d: expect.any(Number),
-                            marketCap: expect.any(Number),
-                            volume24h: expect.any(Number),
-                        };
-                        return [4 /*yield*/, expect(answer[0]).toMatchObject(expected)];
-                    case 3:
-                        _a.sent();
+                        url = service.coinGeckoURL + 'coins/markets?vs_currency=EUR&ids=bitcoin&price_change_percentage=1h%2C24h%2C7d';
+                        expect(spy).toHaveBeenCalledWith(url);
                         return [2 /*return*/];
                 }
             });

@@ -37,116 +37,148 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var top_crypto_1 = require("./top-crypto");
+var market_data_mock_1 = require("./mocks/market-data-mock");
 describe('TopCrypto', function () {
     var topCrypto;
-    // To prevent console.log to be called (best would be to use proper mocks)
-    var logSpy = jest.spyOn(console, 'log').mockImplementation(function () { });
+    var getAndDisplaySpy;
+    var options = {
+        currency: 'EUR',
+        currencies: [],
+        refresh: 0,
+        help: false,
+        alternative: false,
+        filter: '',
+        order: 'rank'
+    };
     beforeEach(function () {
-        topCrypto = new top_crypto_1.TopCrypto();
+        topCrypto = new top_crypto_1.TopCrypto(options);
+        getAndDisplaySpy = jest.spyOn(topCrypto, 'getAndDisplay').mockImplementation();
     });
-    describe('init', function () {
-        test('should show header, get list of currencies, set options and run', function () { return __awaiter(void 0, void 0, void 0, function () {
-            var spyDisplay, spyGetList, sypSetOptions, spyRun;
+    describe('run', function () {
+        test('should show help if help option set', function () { return __awaiter(void 0, void 0, void 0, function () {
+            var spy;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        spyDisplay = jest.spyOn(topCrypto.displayService, 'showHeader').mockImplementation(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
-                            return [2 /*return*/];
-                        }); }); });
-                        spyGetList = jest.spyOn(topCrypto, 'getListOfCurrencies').mockImplementation(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
-                            return [2 /*return*/];
-                        }); }); });
-                        sypSetOptions = jest.spyOn(topCrypto, 'setOptions').mockImplementation(function () { });
-                        spyRun = jest.spyOn(topCrypto, 'run').mockImplementation(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
-                            return [2 /*return*/];
-                        }); }); });
-                        return [4 /*yield*/, topCrypto.init()];
+                        spy = jest.spyOn(topCrypto.displayService, 'showHelp').mockImplementation(function () { });
+                        topCrypto.options.help = true;
+                        return [4 /*yield*/, topCrypto.run()];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, expect(spyDisplay).toHaveBeenCalled()];
+                        return [4 /*yield*/, expect(spy).toHaveBeenCalled()];
                     case 2:
                         _a.sent();
-                        expect(spyGetList).toHaveBeenCalled();
-                        expect(sypSetOptions).toHaveBeenCalled();
-                        expect(spyRun).toHaveBeenCalled();
                         return [2 /*return*/];
                 }
             });
         }); });
-    });
-    describe('setSymbols', function () {
-        test('should set options.abbrs as array from string aa,bb,cc', function () {
-            topCrypto.setSymbols('aa,bb,cc');
-            expect(topCrypto.options.abbrs).toEqual(['aa', 'bb', 'cc']);
-        });
-        test('should throw an error if string contain other char than alpha and comma', function () {
-            expect(function () { topCrypto.setSymbols('aa,bb,cc"'); }).toThrowError();
-        });
-    });
-    describe('print', function () {
-        test('should create table, clear screen and console log', function () { return __awaiter(void 0, void 0, void 0, function () {
-            var spyCreate, spyClear, spyGetTable;
-            return __generator(this, function (_a) {
-                spyCreate = jest.spyOn(topCrypto.formatTableService, 'create').mockImplementation(function () { });
-                spyClear = jest.spyOn(topCrypto.displayService, 'clear').mockImplementation(function () { });
-                spyGetTable = jest.spyOn(topCrypto.formatTableService, 'get').mockImplementation(function () { return 'fakeoutput'; });
-                topCrypto.print();
-                expect(spyCreate).toHaveBeenCalled();
-                expect(spyClear).toHaveBeenCalled();
-                expect(logSpy).toHaveBeenCalledWith('fakeoutput');
-                return [2 /*return*/];
-            });
-        }); });
-    });
-    describe('run', function () {
-        test('should call fetch and print', function () { return __awaiter(void 0, void 0, void 0, function () {
-            var fetchSpy, spyPrint;
+        test('should call currency and update title in format service', function () { return __awaiter(void 0, void 0, void 0, function () {
+            var spy, spyUpdateTitle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        fetchSpy = jest.spyOn(topCrypto, 'fetch')
-                            .mockImplementation(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
-                            return [2 /*return*/, {}];
-                        }); }); });
-                        spyPrint = jest.spyOn(topCrypto, 'print').mockImplementation(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
-                            return [2 /*return*/];
-                        }); }); });
+                        topCrypto.options.currencies = ['btc'];
+                        topCrypto.options.help = false;
+                        spy = jest.spyOn(topCrypto.formatService, 'setCurrencyUnit').mockImplementation(function () { });
+                        spyUpdateTitle = jest.spyOn(topCrypto.formatService, 'updateTitle').mockImplementation(function () { });
                         return [4 /*yield*/, topCrypto.run()];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, expect(fetchSpy).toHaveBeenCalled()];
+                        return [4 /*yield*/, expect(spy).toHaveBeenCalled()];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, expect(spyPrint).toHaveBeenCalled()];
+                        return [4 /*yield*/, expect(spyUpdateTitle).toHaveBeenCalled()];
                     case 3:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         }); });
-    });
-    describe('fetch', function () {
-        test('should call API to get market', function () { return __awaiter(void 0, void 0, void 0, function () {
-            var getMarketSpy;
+        test('should call get and display', function () { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        getMarketSpy = jest.spyOn(topCrypto.marketService, 'getMarket')
-                            .mockImplementation(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
-                            return [2 /*return*/, {}];
-                        }); }); });
-                        return [4 /*yield*/, topCrypto.fetch()];
+                    case 0: return [4 /*yield*/, topCrypto.run()];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, expect(getMarketSpy).toHaveBeenCalled()];
+                        return [4 /*yield*/, expect(getAndDisplaySpy).toHaveBeenCalled()];
                     case 2:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         }); });
+        test('should call get and display every second if refresh option is set to 1', function () { return __awaiter(void 0, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        topCrypto.options.refresh = 1;
+                        jest.useFakeTimers();
+                        return [4 /*yield*/, topCrypto.run()];
+                    case 1:
+                        _a.sent();
+                        jest.advanceTimersByTime(3200);
+                        // One call initially then one every second
+                        return [4 /*yield*/, expect(getAndDisplaySpy).toHaveBeenCalledTimes(4)];
+                    case 2:
+                        // One call initially then one every second
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
     });
-    afterEach(function () {
-        jest.clearAllMocks();
+    describe('getAndDisplay', function () {
+        test('should get data from alternative (or coingecko) depending on options', function () { return __awaiter(void 0, void 0, void 0, function () {
+            var spy, spyAlternative;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        getAndDisplaySpy.mockRestore();
+                        jest.spyOn(topCrypto.formatService, 'setAndPrint').mockImplementation();
+                        jest.spyOn(topCrypto.displayService, 'clear').mockImplementation();
+                        spy = jest.spyOn(topCrypto.marketService, 'getCoinGeckoMarket').mockImplementation(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+                            return [2 /*return*/, market_data_mock_1.marketDataMock];
+                        }); }); });
+                        return [4 /*yield*/, topCrypto.getAndDisplay()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, expect(spy).toHaveBeenCalled()];
+                    case 2:
+                        _a.sent();
+                        spyAlternative = jest.spyOn(topCrypto.marketService, 'getAlternativeMarket').mockImplementation(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+                            return [2 /*return*/, market_data_mock_1.marketDataMock];
+                        }); }); });
+                        topCrypto.options.alternative = true;
+                        return [4 /*yield*/, topCrypto.getAndDisplay()];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, expect(spyAlternative).toHaveBeenCalled()];
+                    case 4:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        test('should call clear and setAndPrint', function () { return __awaiter(void 0, void 0, void 0, function () {
+            var spySetAndPrint, spyClear;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        getAndDisplaySpy.mockRestore();
+                        spySetAndPrint = jest.spyOn(topCrypto.formatService, 'setAndPrint').mockImplementation();
+                        spyClear = jest.spyOn(topCrypto.displayService, 'clear').mockImplementation();
+                        return [4 /*yield*/, topCrypto.getAndDisplay()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, expect(spySetAndPrint).toHaveBeenCalled()];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, expect(spyClear).toHaveBeenCalled()];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
     });
 });

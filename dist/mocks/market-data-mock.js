@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.marketData = void 0;
-exports.marketData = [
+exports.marketDataMock = void 0;
+exports.marketDataMock = [
     {
         "rank": 1,
         "abbr": "btc",

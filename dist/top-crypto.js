@@ -38,139 +38,70 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TopCrypto = void 0;
 var market_service_1 = require("./services/market.service");
-var format_table_service_1 = require("./services/format-table.service");
 var display_service_1 = require("./services/display.service");
-var argv = require('yargs').argv;
+var format_crypto_service_1 = require("./services/format-crypto.service");
 var TopCrypto = /** @class */ (function () {
-    function TopCrypto() {
-        this.options = {
-            currency: 'usd',
-            abbrs: [],
-            ids: [],
-            refresh: false,
-            refreshInterval: 0,
-        };
+    function TopCrypto(options) {
+        this.options = options;
         this.marketService = new market_service_1.MarketService();
-        this.formatTableService = new format_table_service_1.FormatTableService();
+        this.formatService = new format_crypto_service_1.FormatCryptoService();
         this.displayService = new display_service_1.DisplayService();
-        this.marketData = [];
     }
-    TopCrypto.prototype.init = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.displayService.showHeader();
-                        return [4 /*yield*/, this.getListOfCurrencies()];
-                    case 1:
-                        _a.sent();
-                        this.setOptions();
-                        return [4 /*yield*/, this.run()];
-                    case 2:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    TopCrypto.prototype.getListOfCurrencies = function () {
-        return this.marketService.getCoinList();
-    };
-    TopCrypto.prototype.setOptions = function () {
-        if (!argv._[0] || argv._[0] === '') {
-            throw new Error('wrong_options');
-        }
-        this.setSymbols(argv._[0]);
-        this.checkSafeSymbols();
-        if (argv.currency) {
-            this.options.currency = argv.currency.toLowerCase();
-            this.formatTableService.setCurrencyUnit(this.options.currency);
-        }
-        if (argv.refresh) {
-            this.options.refresh = true;
-            this.options.refreshInterval = Number(argv.refresh) * 1000;
-        }
-    };
-    TopCrypto.prototype.setSymbols = function (abbrs) {
-        if (abbrs && /^[a-zA-Z,]+$/.test(abbrs)) {
-            this.options.abbrs = abbrs.split(',');
-        }
-        else {
-            throw new Error('wrong_options');
-        }
-    };
-    TopCrypto.prototype.checkSafeSymbols = function () {
-        var _this = this;
-        this.options.abbrs.forEach(function (abbr) {
-            if (_this.marketService.allowedSymbols.indexOf(abbr) === -1) {
-                throw new Error('wrong_abbr');
-            }
-            else {
-                _this.options.ids.push(_this.getCryptoIdFromSymbol(abbr));
-            }
-        });
-    };
-    TopCrypto.prototype.getCryptoIdFromSymbol = function (abbr) {
-        var id = '';
-        for (var i = 0; i < this.marketService.coinList.length; i++) {
-            var elem = this.marketService.coinList[i];
-            if (elem.symbol === abbr) {
-                id = elem.id;
-                break;
-            }
-        }
-        return id;
-    };
     TopCrypto.prototype.run = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.fetch()];
+                    case 0:
+                        if (!this.options.help) return [3 /*break*/, 1];
+                        this.displayService.showHelp();
+                        return [3 /*break*/, 3];
                     case 1:
+                        this.formatService.setCurrencyUnit(this.options.currency);
+                        this.formatService.updateTitle();
+                        return [4 /*yield*/, this.getAndDisplay()];
+                    case 2:
                         _a.sent();
-                        this.print();
                         if (this.options.refresh) {
-                            setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+                            setInterval(function () { return __awaiter(_this, void 0, void 0, function () {
                                 return __generator(this, function (_a) {
                                     switch (_a.label) {
-                                        case 0: return [4 /*yield*/, this.run()];
+                                        case 0: return [4 /*yield*/, this.getAndDisplay()];
                                         case 1:
                                             _a.sent();
-                                            console.log('Refreshed : ' + new Date());
                                             return [2 /*return*/];
                                     }
                                 });
-                            }); }, this.options.refreshInterval);
+                            }); }, this.options.refresh * 1000);
                         }
-                        return [2 /*return*/];
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
                 }
             });
         });
     };
-    TopCrypto.prototype.fetch = function () {
+    TopCrypto.prototype.getAndDisplay = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = this;
-                        return [4 /*yield*/, this.marketService.getMarket(this.options)];
-                    case 1:
-                        _a.marketData = _b.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    TopCrypto.prototype.print = function () {
-        return __awaiter(this, void 0, void 0, function () {
+            var data;
             return __generator(this, function (_a) {
-                this.formatTableService.create(this.marketData);
-                this.displayService.clear();
-                this.displayService.showHeader();
-                console.log(this.formatTableService.get().toString());
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        if (!this.options.alternative) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.marketService.getAlternativeMarket(this.options)];
+                    case 1:
+                        data = _a.sent();
+                        return [3 /*break*/, 4];
+                    case 2: return [4 /*yield*/, this.marketService.getCoinGeckoMarket(this.options)];
+                    case 3:
+                        data = _a.sent();
+                        _a.label = 4;
+                    case 4:
+                        this.displayService.clear();
+                        return [4 /*yield*/, this.formatService.setAndPrint(data, this.options)];
+                    case 5:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };

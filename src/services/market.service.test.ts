@@ -1,41 +1,43 @@
-// The http requests are not mocked here, as we contact a third-party API it is good to check the data
-import { MarketService, CurrencyInfos } from "./market.service";
-import { Options } from "../top-crypto";
+import { MarketService } from "./market.service";
+import { NetworkServiceMock } from "../mocks/services/network.service.mock";
+import { marketDataMock } from "../mocks/market-data-mock";
 
 describe('MarketService', () => {
 
-    let api: MarketService;
+    let service: MarketService;
 
     beforeEach(() => {
-        api = new MarketService();
+        service = new MarketService();
+        service.networkService = new NetworkServiceMock();
     });
 
-    describe('getMarket', () => {
-        test('should return an array of currencies data given an array of currencies from coinGecko', async () => {
-            const options: Options = {
-                currency: 'usd',
-                abbrs: ['bitcoin'],
-                ids: ['01coin'],
-                refresh: false,
-                refreshInterval: 0,
-            }
-            const answer = await api.getMarket(options);
-            await expect(answer.length).toBe(1);
-
-            const expected: CurrencyInfos = {
-                rank: expect.any(Number),
-                abbr: expect.any(String),
-                name: expect.any(String),
-                price: expect.any(Number),
-                change1h: expect.any(Number),
-                change24h: expect.any(Number),
-                change7d: expect.any(Number),
-                marketCap: expect.any(Number),
-                volume24h: expect.any(Number),
-            }
-            await expect(answer[0]).toMatchObject(expected);
-
+    describe('Verify url', () => {
+        test('coinGeckoURL : https://api.coingecko.com/api/v3', () => {
+            expect(service.coinGeckoURL).toEqual('https://api.coingecko.com/api/v3/');
         });
+        test('alternativeURL : https://api.alternative.me/v2/', () => {
+            expect(service.alternativeURL).toEqual('https://api.alternative.me/v2/');
+        });
+    });
+
+    describe('getCoinGeckoMarket', () => {
+        test('should send proper url to network service', async () => {
+            const spy = jest.spyOn(service.networkService, 'get')
+                .mockImplementation(async () => { return { data: [marketDataMock] }; })
+            const options = {
+                currency: 'EUR',
+                currencies: ['btc'],
+                refresh: 10,
+                help: false,
+                alternative: false,
+                filter: '',
+                order: 'rank'
+            };
+            await service.getCoinGeckoMarket(options);
+            const url = service.coinGeckoURL +'coins/markets?vs_currency=EUR&ids=bitcoin&price_change_percentage=1h%2C24h%2C7d';
+            expect(spy).toHaveBeenCalledWith(url);
+        });
+       
     });
 
 });

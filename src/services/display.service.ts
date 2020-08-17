@@ -1,28 +1,28 @@
-var clear = require('clear');
+var clear = require('clear')
 
 export class DisplayService {
 
-    showHeader() {
-        console.log('    |----------------------------------- TopCrypto -------------------------------------|');
-        console.log('    |                                                                                   |')
-        console.log('    |------- real time cryptocurrencies status (data from coingecko.com) ---------------|');
-        console.log('    |                                                                                   |')
-        console.log('    |-----------------------------------------------------------------------------------|');
-    }
-
-    showHelp() {
-        console.log('')
-        console.log('Usage : yarn run start btc,xrp,eth,eos,bch,usdt,ltc,trx,xlm,ada --refresh 10 --currency EUR')
-        console.log('')
-        console.log('Options, use columnIDs : rank, abbr, name, price, change1h, change24h, change7d, marketCap, volume24h');
-        console.log('--currency EUR  #USD by default');
-        console.log('--help');
-        console.log('--refresh 10 #refresh every 10s');
-        console.log('');
+    show(str: string) {
+        console.log(str);
     }
 
     clear() {
         clear();
+    }
+
+    showHelp() {
+        this.show('')
+        this.show('     Usage : yarn start btc,xrp,eth,eos,bch,usdt,ltc,trx,xlm,ada --refresh 10 --currency USD --order change1h --filter "price<400" --alternative')
+        this.show('')
+        this.show('     Options, use columnIDs : rank, abbr, name, price, change1h, change24h, change7d, marketCap, volume24h');
+        this.show('         --currency EUR  #USD by default');
+        this.show('         -h # Display help');
+        this.show('         --refresh 10 #Refresh every 10s');
+        this.show('         --filter "price<30"');
+        this.show('         --order price #Order ascending (using columnIds)');
+        this.show('         --filter "price<30"');
+        this.show('         --alternative #use alternative.me instead of coingecko.net');
+        this.show('')
     }
 
 }

@@ -1,4 +1,4 @@
-export const marketData = [
+export const marketDataMock = [
    {
       "rank": 1,
       "abbr": "btc",

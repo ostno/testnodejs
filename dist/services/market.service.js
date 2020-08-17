@@ -35,46 +35,78 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MarketService = void 0;
-var axios_1 = __importDefault(require("axios"));
+var network_service_1 = require("./network.service");
+var coin_list_1 = require("../helpers/coin-list");
 var MarketService = /** @class */ (function () {
     function MarketService() {
-        this.baseUrl = 'https://api.coingecko.com/api/v3/';
-        this.coinList = [];
-        this.allowedSymbols = [];
+        this.coinGeckoURL = 'https://api.coingecko.com/api/v3/';
+        this.alternativeURL = 'https://api.alternative.me/v2/';
+        this.networkService = new network_service_1.NetworkService();
     }
-    MarketService.prototype.getCoinList = function () {
+    MarketService.prototype.getCoinGeckoMarket = function (options) {
         return __awaiter(this, void 0, void 0, function () {
-            var url, response, e_1;
+            var infos, currencySymbols, url, response, e_1;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        url = this.baseUrl + 'coins/list';
-                        return [4 /*yield*/, axios_1.default.get(url)];
+                        infos = [];
+                        currencySymbols = options.currencies.map(function (symbol) { return _this.getCryptoIdFromSymbol(symbol); });
+                        _a.label = 1;
                     case 1:
-                        response = _a.sent();
-                        this.coinList = response.data;
-                        this.coinList.forEach(function (_a) {
-                            var symbol = _a.symbol;
-                            _this.allowedSymbols.push(symbol);
-                        });
-                        return [3 /*break*/, 3];
+                        _a.trys.push([1, 3, , 4]);
+                        url = this.coinGeckoURL +
+                            'coins/markets?vs_currency=' +
+                            options.currency +
+                            '&ids=' +
+                            currencySymbols.join() +
+                            '&price_change_percentage=1h%2C24h%2C7d';
+                        return [4 /*yield*/, this.networkService.get(url)];
                     case 2:
+                        response = _a.sent();
+                        if (!response.data) {
+                            throw new Error('API error');
+                        }
+                        response.data.forEach(function (currencyDetails) {
+                            infos.push(_this.selectedPropertiesFromCoinGeckoAnswer(currencyDetails));
+                        });
+                        return [3 /*break*/, 4];
+                    case 3:
                         e_1 = _a.sent();
                         console.error(e_1);
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/, infos];
                 }
             });
         });
     };
-    MarketService.prototype.getMarket = function (options) {
+    MarketService.prototype.getCryptoIdFromSymbol = function (abbr) {
+        var id = '';
+        for (var i = 0; i < coin_list_1.CoinList.length; i++) {
+            var elem = coin_list_1.CoinList[i];
+            if (elem.symbol === abbr) {
+                id = elem.id;
+                break;
+            }
+        }
+        return id;
+    };
+    MarketService.prototype.selectedPropertiesFromCoinGeckoAnswer = function (element) {
+        return {
+            rank: element.market_cap_rank,
+            abbr: element.symbol,
+            name: element.name,
+            price: element.current_price,
+            change1h: element.price_change_percentage_1h_in_currency,
+            change24h: element.price_change_percentage_24h_in_currency,
+            change7d: element.price_change_percentage_7d_in_currency,
+            marketCap: element.market_cap,
+            volume24h: element.total_volume,
+        };
+    };
+    MarketService.prototype.getAlternativeMarket = function (options) {
         return __awaiter(this, void 0, void 0, function () {
             var infos, url, response, e_2;
             var _this = this;
@@ -85,17 +117,17 @@ var MarketService = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        url = this.baseUrl +
-                            'coins/markets?vs_currency=' +
-                            options.currency +
-                            '&ids=' +
-                            options.ids.join() +
-                            '&price_change_percentage=1h%2C24h%2C7d';
-                        return [4 /*yield*/, axios_1.default.get(url)];
+                        url = this.alternativeURL + "ticker/?structure=array&convert=" + options.currency;
+                        return [4 /*yield*/, this.networkService.get(url)];
                     case 2:
                         response = _a.sent();
-                        response.data.forEach(function (currencyDetails) {
-                            infos.push(_this.selectedProperties(currencyDetails));
+                        if (!response.data) {
+                            throw new Error('API error');
+                        }
+                        response.data.data.forEach(function (currencyDetails) {
+                            if (options.currencies.indexOf(currencyDetails.symbol.toLowerCase()) !== -1) {
+                                infos.push(_this.selectedPropertiesFromAlternativeAnswer(currencyDetails, options.currency));
+                            }
                         });
                         return [3 /*break*/, 4];
                     case 3:
@@ -107,17 +139,17 @@ var MarketService = /** @class */ (function () {
             });
         });
     };
-    MarketService.prototype.selectedProperties = function (element) {
+    MarketService.prototype.selectedPropertiesFromAlternativeAnswer = function (element, currency) {
         return {
-            rank: element.market_cap_rank,
+            rank: element.rank,
             abbr: element.symbol,
             name: element.name,
-            price: element.current_price,
-            change1h: element.price_change_percentage_1h_in_currency,
-            change24h: element.price_change_percentage_24h_in_currency,
-            change7d: element.price_change_percentage_7d_in_currency,
-            marketCap: element.market_cap,
-            volume24h: element.high_24h,
+            price: element.quotes[currency].price,
+            change1h: element.quotes[currency].percent_change_1h,
+            change24h: element.quotes[currency].percent_change_24h,
+            change7d: element.quotes[currency].percent_change_7d,
+            marketCap: element.quotes[currency].market_cap,
+            volume24h: element.quotes[currency].volume_24h,
         };
     };
     return MarketService;
