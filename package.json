@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@types/jest": "^26.0.4",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "clear": "^0.1.0",
     "console-table-printer": "^2.3.11",
     "jest": "^26.1.0",
